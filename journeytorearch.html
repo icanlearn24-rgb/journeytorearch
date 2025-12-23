@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>গবেষণা সহায়িকা - ফ্ল্যাশ কার্ড সংস্করণ</title>
+    <meta property="og:title" content="গবেষণা সহায়িকা - ইন্টারেক্টিভ ফ্ল্যাশ কার্ড" />
+<meta property="og:description" content="গবেষণা শুরু করার সহজ গাইড। কার্ডে ক্লিক করে প্রতিটি ধাপ বিস্তারিত জানুন।" />
+<meta property="og:image" content="https://www.google.com/search?q=https://your-website.com/thumbnail-image.jpg" />
+<meta property="og:url" content="https://your-website.com" />
+<meta property="og:type" content="website" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts for Bangla -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Application Structure Plan: 
+         - UI/UX: Card-based interface with flip animations.
+         - Interaction: Users click cards to reveal detailed explanations/checklists.
+         - Navigation: A progress tracker for the research deck.
+         - Data Integrity: All data from previous research guide is preserved.
+    -->
+
+    <style>
+        body {
+            font-family: 'Hind Siliguri', sans-serif;
+            background-color: #fdfcfb; /* Soft warm neutral */
+            color: #1c1917;
+        }
+
+        /* Flashcard Flip Animation */
+        .flip-card {
+            perspective: 1000px;
+            background-color: transparent;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .flip-card-front {
+            background-color: #ffffff;
+            border: 2px solid #e7e5e4;
+        }
+
+        .flip-card-back {
+            background-color: #0f766e;
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            height: 350px;
+        }
+
+        .progress-dot.active {
+            background-color: #0f766e;
+            width: 2rem;
+        }
+    </style>
+    <!-- CONFIRMATION: NO SVG used. Using Unicode & CSS. -->
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex justify-between items-center">
+            <span class="text-xl font-bold text-teal-700">🔍 গবেষণা ফ্ল্যাশ-কার্ড</span>
+            <div class="hidden md:flex space-x-6 text-stone-600 font-medium">
+                <a href="#deck" class="hover:text-teal-700">মূল ধাপ</a>
+                <a href="#compare" class="hover:text-teal-700">পদ্ধতি</a>
+                <a href="#planner" class="hover:text-teal-700">পরিকল্পনা</a>
+                <a href="#tools" class="hover:text-teal-700">টুলস</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Deck Section -->
+    <section id="deck" class="pt-12 pb-20 px-4">
+        <div class="max-w-4xl mx-auto text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-stone-800 mb-4">গবেষণার যাত্রা: ইন্টারেক্টিভ লার্নিং</h1>
+            <p class="text-stone-600">নিচের কার্ডগুলোতে ক্লিক করে গবেষণার প্রতিটি ধাপের রহস্য উন্মোচন করুন।</p>
+        </div>
+
+        <!-- The Main Flashcard Deck Display -->
+        <div class="max-w-2xl mx-auto relative group">
+            <div id="main-deck-container" class="h-[450px] md:h-[400px]">
+                <!-- Card content will be injected by JS -->
+            </div>
+
+            <!-- Deck Controls -->
+            <div class="flex justify-between items-center mt-8 px-4">
+                <button onclick="prevCard()" class="p-3 rounded-full bg-white border border-stone-200 hover:bg-stone-50 transition shadow-sm">
+                    ◀ পূর্ববর্তী
+                </button>
+                <div id="progress-dots" class="flex gap-2">
+                    <!-- Dots injected by JS -->
+                </div>
+                <button onclick="nextCard()" class="p-3 rounded-full bg-teal-700 text-white hover:bg-teal-800 transition shadow-md">
+                    পরবর্তী ▶
+                </button>
+            </div>
+            <p class="text-center mt-4 text-sm text-stone-400 italic">কার্ডটি উল্টে দেখতে ক্লিক করুন</p>
+        </div>
+    </section>
+
+    <!-- Section 2: Methodology Flip Cards -->
+    <section id="compare" class="bg-stone-100 py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-stone-800">কোন পদ্ধতিটি সঠিক?</h2>
+                <p class="text-stone-600">পদ্ধতি দুটির গভীরে প্রবেশ করুন</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 h-[350px]">
+                <!-- Quant Flip Card -->
+                <div class="flip-card h-full" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front border-blue-200 border-t-8">
+                            <span class="text-5xl mb-4">📊</span>
+                            <h3 class="text-2xl font-bold text-blue-700">পরিমাণগত (Quantitative)</h3>
+                            <p class="mt-4 text-stone-500">ডেটা ও সংখ্যা যখন মূল ভিত্তি</p>
+                            <span class="mt-8 text-xs font-bold uppercase text-stone-400">ক্লিক করে তথ্য দেখুন</span>
+                        </div>
+                        <div class="flip-card-back bg-blue-700">
+                            <h4 class="text-xl font-bold mb-4">মূল বৈশিষ্ট্য:</h4>
+                            <ul class="text-left space-y-3 px-4">
+                                <li>• পরিসংখ্যানগত বিশ্লেষণ</li>
+                                <li>• বৃহৎ স্যাম্পল সাইজ</li>
+                                <li>• সুনির্দিষ্ট গাণিতিক ফলাফল</li>
+                                <li>• গ্রাফ ও চার্ট ব্যবহার</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Qual Flip Card -->
+                <div class="flip-card h-full" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front border-emerald-200 border-t-8">
+                            <span class="text-5xl mb-4">💬</span>
+                            <h3 class="text-2xl font-bold text-emerald-700">গুণগত (Qualitative)</h3>
+                            <p class="mt-4 text-stone-500">অভিজ্ঞতা ও অনুভূতি যখন মূল ভিত্তি</p>
+                            <span class="mt-8 text-xs font-bold uppercase text-stone-400">ক্লিক করে তথ্য দেখুন</span>
+                        </div>
+                        <div class="flip-card-back bg-emerald-700">
+                            <h4 class="text-xl font-bold mb-4">মূল বৈশিষ্ট্য:</h4>
+                            <ul class="text-left space-y-3 px-4">
+                                <li>• গভীর সাক্ষাৎকার ও পর্যবেক্ষণ</li>
+                                <li>• থিম্যাটিক অ্যানালাইসিস</li>
+                                <li>• ছোট কিন্তু গভীর স্যাম্পল</li>
+                                <li>• বর্ণনামূলক ফলাফল</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 3: Planner -->
+    <section id="planner" class="py-20 px-6 max-w-6xl mx-auto">
+        <div class="md:flex gap-12 items-center">
+            <div class="md:w-1/3 mb-10 md:mb-0">
+                <h2 class="text-3xl font-bold mb-4 text-stone-800">সময় পরিকল্পনা</h2>
+                <p class="text-stone-600 mb-8 leading-relaxed">গবেষণার জন্য সময়ের একটি সুনির্দিষ্ট চিত্র থাকা জরুরি। নিচের স্লাইডার ব্যবহার করে দেখুন আপনার সময়ের কতটুকু কোন ধাপে ব্যয় হবে।</p>
+                <div class="p-6 bg-white rounded-2xl shadow-sm border">
+                    <label class="block mb-2 font-semibold">মোট সময়: <span id="weekLabel" class="text-teal-700">12</span> সপ্তাহ</label>
+                    <input type="range" id="weekRange" min="4" max="52" value="12" class="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-teal-600">
+                    <div id="advice" class="mt-6 text-sm text-teal-800 bg-teal-50 p-4 rounded-xl">১২ সপ্তাহ একটি আদর্শ সেমিস্টার রিসার্চের সময়।</div>
+                </div>
+            </div>
+            <div class="md:w-2/3">
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-stone-100">
+                    <div class="chart-container">
+                        <canvas id="timeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 4: Tools Mini Cards -->
+    <section id="tools" class="bg-stone-50 py-20 px-6">
+        <div class="max-w-6xl mx-auto text-center mb-12">
+            <h2 class="text-3xl font-bold">ডিজিটাল টুলকিট</h2>
+            <p class="text-stone-600 mt-2">কার্ডে ক্লিক করে টুলের ব্যবহার জানুন</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="tools-container">
+            <!-- Tools cards injected here -->
+        </div>
+    </section>
+
+    <footer class="bg-stone-900 text-white py-12 text-center">
+        <p class="opacity-50 text-sm">© ২০২৫ গবেষণা সহায়িকা | লার্নিং ইন্টারফেস</p>
+    </footer>
+
+    <script>
+        // Data Preservation
+        const researchSteps = [
+            { id: 1, title: "বিষয় নির্বাচন", icon: "💡", desc: "গবেষণার প্রথম ধাপ হলো একটি সুনির্দিষ্ট বিষয় বেছে নেওয়া।", checklist: ["আগ্রহের ক্ষেত্র চিহ্নিত করা", "প্রাসঙ্গিকতা যাচাই", "পূর্ববর্তী কাজের রিভিউ"] },
+            { id: 2, title: "সাহিত্য পর্যালোচনা", icon: "📚", desc: "বিদ্যমান জ্ঞান ও গবেষণার ফাঁক খুঁজে বের করার পদ্ধতি।", checklist: ["জার্নাল ও আর্টিকেল পড়া", "সাইটেশন নোট নেওয়া", "রিসার্চ গ্যাপ খোঁজা"] },
+            { id: 3, title: "গবেষণা প্রশ্ন", icon: "❓", desc: "গবেষণা ঠিক কোন প্রশ্নের উত্তর খুঁজবে তা নির্ধারণ করা।", checklist: ["সুনির্দিষ্ট প্রশ্ন তৈরি", "হাইপোথিসিস সেট করা", "উদ্দেশ্য বর্ণনা করা"] },
+            { id: 4, title: "পদ্ধতি ও ডিজাইন", icon: "⚙️", desc: "কিভাবে তথ্য সংগ্রহ ও বিশ্লেষণ করা হবে তার নকশা।", checklist: ["মেথডোলজি ঠিক করা", "স্যাম্পলিং টেকনিক", "নৈতিক অনুমোদন"] },
+            { id: 5, title: "তথ্য সংগ্রহ ও বিশ্লেষণ", icon: "📈", desc: "মাঠ পর্যায় থেকে ডেটা নিয়ে তা প্রক্রিয়াকরণ।", checklist: ["ডেটা ক্লিন করা", "সফটওয়্যার ব্যবহার", "ফলাফল উপস্থাপন"] },
+            { id: 6, title: "লেখা ও প্রকাশনা", icon: "✍️", desc: "গবেষণার ফলাফল রিপোর্টে রূপ দেওয়া।", checklist: ["ড্রাফট লেখা", "রেফারেন্সিং (APA/MLA)", "জার্নালে জমা দেওয়া"] }
+        ];
+
+        const toolsData = [
+            { name: "Google Scholar", icon: "🔍", desc: "একাডেমিক তথ্য খোঁজার সার্চ ইঞ্জিন।" },
+            { name: "Zotero", icon: "📝", desc: "রেফারেন্স ও সাইটেশন ম্যানেজমেন্টের জন্য সেরা।" },
+            { name: "SPSS", icon: "📊", desc: "জটিল সংখ্যাতাত্ত্বিক বিশ্লেষণের জন্য সফটওয়্যার।" },
+            { name: "Grammarly", icon: "✨", desc: "লেখার মান ও গ্রামার ঠিক করার টুল।" }
+        ];
+
+        let currentCardIndex = 0;
+
+        // Initialize Main Deck
+        function renderMainCard() {
+            const container = document.getElementById('main-deck-container');
+            const dots = document.getElementById('progress-dots');
+            const step = researchSteps[currentCardIndex];
+
+            container.innerHTML = `
+                <div class="flip-card w-full h-full" id="active-flashcard" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front bg-white shadow-2xl border-stone-200">
+                            <span class="text-7xl mb-6">${step.icon}</span>
+                            <h3 class="text-3xl font-bold text-teal-800">${step.title}</h3>
+                            <div class="mt-8 px-8 py-2 bg-stone-100 rounded-full text-stone-400 text-sm font-bold">ক্লিক করে বিস্তারিত দেখুন</div>
+                        </div>
+                        <div class="flip-card-back shadow-2xl">
+                            <h4 class="text-xl font-bold border-b border-white/30 pb-2 mb-4">ধাপ ${step.id}: বিস্তারিত</h4>
+                            <p class="text-lg leading-relaxed mb-6">${step.desc}</p>
+                            <div class="text-left w-full space-y-2">
+                                <p class="font-bold text-teal-200 uppercase text-xs">করণীয়:</p>
+                                ${step.checklist.map(i => `<div class="flex items-center text-sm"><span class="mr-2">✓</span> ${i}</div>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render Dots
+            dots.innerHTML = researchSteps.map((_, i) => 
+                `<div class="progress-dot h-3 rounded-full transition-all duration-300 ${i === currentCardIndex ? 'active bg-teal-700 w-8' : 'bg-stone-300 w-3'}"></div>`
+            ).join('');
+        }
+
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % researchSteps.length;
+            renderMainCard();
+        }
+
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + researchSteps.length) % researchSteps.length;
+            renderMainCard();
+        }
+
+        // Initialize Tools Grid
+        function renderTools() {
+            const container = document.getElementById('tools-container');
+            toolsData.forEach(tool => {
+                container.innerHTML += `
+                    <div class="flip-card h-48" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <span class="text-3xl mb-2">${tool.icon}</span>
+                                <h4 class="font-bold">${tool.name}</h4>
+                            </div>
+                            <div class="flip-card-back p-4 text-xs">
+                                <p>${tool.desc}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Initialize Chart
+        let timeChart;
+        function initChart() {
+            const ctx = document.getElementById('timeChart').getContext('2d');
+            timeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['প্ল্যানিং', 'লিটারেচার', 'মেথড', 'ডেটা', 'রিপোর্ট'],
+                    datasets: [{
+                        label: 'বরাদ্দকৃত সপ্তাহ',
+                        data: [1.8, 2.4, 1.8, 3, 3],
+                        backgroundColor: '#2dd4bf',
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: { x: { display: false }, y: { grid: { display: false } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        document.getElementById('weekRange').oninput = function(e) {
+            const val = e.target.value;
+            document.getElementById('weekLabel').innerText = val;
+            const newData = [0.15, 0.20, 0.15, 0.25, 0.25].map(p => (p * val).toFixed(1));
+            timeChart.data.datasets[0].data = newData;
+            timeChart.update();
+            
+            const advice = document.getElementById('advice');
+            if(val < 10) advice.innerText = "এটি বেশ সংক্ষিপ্ত সময়। দ্রুত কাজের জন্য ছোট বিষয় বেছে নিন।";
+            else if(val < 24) advice.innerText = "সেমিস্টার বা অনার্স থিসিসের জন্য এই সময়কাল উপযুক্ত।";
+            else advice.innerText = "বিশাল বড় প্রজেক্ট বা পিএইচডির জন্য আপনি যথেষ্ট সময় পাচ্ছেন।";
+        };
+
+        // Window Load
+        window.onload = () => {
+            renderMainCard();
+            renderTools();
+            initChart();
+        };
+    </script>
+</body>
+</html>
